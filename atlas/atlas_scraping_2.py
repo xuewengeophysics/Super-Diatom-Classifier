@@ -22,6 +22,17 @@ def showImg(img, scale=1):
     print("DEBUG: waitKey returned:", chr(k))
     cv2.destroyAllWindows()
 
+def saveImg(img, root, folder, id):
+    if folder==None:
+        path_to_folder = "./"+root
+    else:
+        path_to_folder = "./"+root+"/"+name
+        if not os.path.exists(path_to_folder):
+            os.makedirs(path_to_folder)
+    full_path = path_to_folder+"/"+str(id)+".png"
+    print(path_to_folder,full_path)
+    cv2.imwrite(full_path,img)
+
 # %%
 pdf_path = "./data/atlas_LIST.pdf"
 input1 = fitz.open(pdf_path)
@@ -61,55 +72,89 @@ for i, name in enumerate(key_list):
         for size in images:
             image_name = "./tmp0/"+ name + "/" + str(i) + "_"
             tmp = np.vstack(images[size])
-            handleImage(tmp, "tmp0", name)
+            handleImage(tmp, "tmp1", name, i, 0)
             i += 1
         
         #cv morpho ->  conected components -> bounding box -> 
 
 # %%
-def handleImage(img, root, folder):
+def handleImage(img, root, folder, id, mode):
 # img = cv2.imread('./tmp/AAMB_0.png',cv2.IMREAD_UNCHANGED)
-    height, width = img.shape[0], img.shape[0]
+    height, width = img.shape[0], img.shape[1]
+    img_area = height*width
     img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret,img_thr = cv2.threshold(img_gs,230,255,cv2.THRESH_BINARY_INV)
+    ret,img_thr = cv2.threshold(img_gs,240,255,cv2.THRESH_BINARY_INV)
     #OPENING
+    kernel_size = 5
+    kernel = np.ones((kernel_size,kernel_size),np.uint8)
+    img_thr = cv2.morphologyEx(img_thr, cv2.MORPH_OPEN, kernel)
+    # showImg(img_thr)
+    #CONNECTED COMPONENTS
+    contours,h = cv2.findContours(img_thr,1,2)
+    j = 0
+    for cnt in contours:
+        x, y, w, h = cv2.boundingRect(cnt)
+        area = w*h
+        if area > img_area*0.005 and area < img_area*0.9:
+            # showImg(ROI)
+            # saveImg(ROI, root, folder, str(id)+str(j))
+            if mode == 0:
+                ROI = img[y:y+h,x:x+w]
+                saveImg(ROI, root, folder, str(id)+str(j))
+            else:
+                # showImg(img[y:y+h,x:x+w])
+                img[y:y+h,x:x+w] = -img[y:y+h,x:x+w] + 255
+            j+=1
+    if mode == 2:
+        saveImg(img, root, None, folder+str(id))
+    if mode == 1:
+        showImg(img)
+    print(j, "component(s) extracted!")
+
+# test=["FAPP_0", "DSEP_0", "DVUL_0"]
+# img = cv2.imread('./tmp/CAEX_0.png',cv2.IMREAD_UNCHANGED)
+# handleImage(img, "", "", "", 1)
+
+# %%
+def handleImage1(img, root, folder, id, mode):
+    # test=["FAPP_0", "DSEP_0", "DVUL_0"]
+    # img = cv2.imread('./tmp/'+test[]+'.png',cv2.IMREAD_UNCHANGED)
+    height, width = img.shape[0], img.shape[1]
+    img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret,img_thr = cv2.threshold(img_gs,254,255,cv2.THRESH_BINARY_INV)
+    # showImg(img_thr)
     kernel_size = 20
     kernel = np.ones((kernel_size,kernel_size),np.uint8)
     img_thr = cv2.morphologyEx(img_thr, cv2.MORPH_OPEN, kernel)
-    #CONNECTED COMPONENTS
-    output = cv2.connectedComponentsWithStats(img_thr)
-    num_labels = output[0]
-    labels = output[1]
-    stats = output[2]
-    centroids = output[3]
-    j = 0
-    for i in range(num_labels):
-        area = stats[i][cv2.CC_STAT_AREA]
-        x, y = stats[i][cv2.CC_STAT_LEFT], stats[i][cv2.CC_STAT_TOP]
-        w, h = stats[i][cv2.CC_STAT_WIDTH], stats[i][cv2.CC_STAT_HEIGHT]
-        if area > height*width*0.01:
-            ROI = img[y:y+h,x:x+w]
-            # showImg(ROI)
-            j+=1
-            path_to_folder = "./"+root+"/"+name
-            full_path = path_to_folder+"/"+str(j)+".png"
-            print(path_to_folder,full_path)
-            if not os.path.exists(path_to_folder):
-                os.makedirs(path_to_folder)
-            cv2.imwrite(full_path,ROI)
-    print(j, "component(s) extracted!")
+    # showImg(img_thr)
+    contours,h = cv2.findContours(img_thr,1,2)
+    # showImg(img_thr)
+    j=0
+    for cnt in contours:
+        for eps in np.arange(0.05, 0.20, 0.01):
+            approx = cv2.approxPolyDP(cnt,eps*cv2.arcLength(cnt,True),True)
+            if len(approx)==4:
+                x, y, w, h = cv2.boundingRect(cnt)
+                if w*h > height*width*0.005:
+                    ROI = img[y:y+h,x:x+w]
+                    
+                    if mode == 0:
+                        saveImg(ROI, root, folder, str(id)+str(j))
+                    else:
+                        img[y:y+h,x:x+w] = -img[y:y+h,x:x+w] + 255
+                    j+=1
+            # print("square")
+            # cv2.drawContours(img,[cnt],0,(np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255)),-1)
+    if mode == 2:
+        saveImg(img, root, None, folder+str(id))
+    if mode == 1:
+        showImg(img)
+    # cv2.imshow('img',img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
+# test=["FAPP_0", "DSEP_0", "DVUL_0"]
+# img = cv2.imread('./tmp/CAEX_0.png',cv2.IMREAD_UNCHANGED)
+# handleImage1(img, "", "", "", 1)
 
-# %%
-ret,img_thr = cv2.threshold(img_gs,20,255,cv2.THRESH_BINARY_INV)
-print(img_thr.shape)
-showImg(img_thr)
-contours,h = cv2.findContours(img_thr,1,2)
-for cnt in contours:
-    approx = cv2.approxPolyDP(cnt,0.01*cv2.arcLength(cnt,True),True)
-    print(len(approx))
-    if len(approx)==4:
-        cv2.drawContours(img,[cnt],0,(0,0,255),-1)
-cv2.imshow('img',img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 # %%
