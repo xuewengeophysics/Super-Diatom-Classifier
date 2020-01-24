@@ -5,9 +5,11 @@ import fitz # pip install PyMuPDF
 import re
 # Plotting
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 import cv2
 import os
+import math
 
 def pix2np(pix):
     im = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.h, pix.w, pix.n)
@@ -26,7 +28,7 @@ def saveImg(img, root, folder, id):
     if folder==None:
         path_to_folder = "./"+root
     else:
-        path_to_folder = "./"+root+"/"+name
+        path_to_folder = "./"+root+"/"+folder
         if not os.path.exists(path_to_folder):
             os.makedirs(path_to_folder)
     full_path = path_to_folder+"/"+str(id)+".png"
@@ -83,32 +85,37 @@ def handleImage(img, root, folder, id, mode):
     height, width = img.shape[0], img.shape[1]
     img_area = height*width
     img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # clipping equals
-    ret,img_clip = cv2.threshold(255-img_gs,230,255,cv2.THRESH_TOZERO_INV)
-    img_clip = img_clip
-    # showImg(img_clip)
-    # erosion
-    kernel_size = 2
+
+    # FIRST THRESOLD:
+    ret,img_bin_thre = cv2.threshold(img_gs,253,255,cv2.THRESH_BINARY_INV)
+    # showImg(img_bin_thre)
+
+    # OPENING
+    kernel_size = 3
     kernel = np.ones((kernel_size,kernel_size),np.uint8)
-    img_opened = cv2.erode(img_clip,kernel,iterations = 2)
-    img_opened = 255-img_opened
-    # showImg(img_opened)
-    # thresolding
-    ret,img_thr = cv2.threshold(img_opened,240,255,cv2.THRESH_BINARY_INV)
-    # showImg(img_thr)
-    # showImg(img_thr)
-    #CONNECTED COMPONENTS
-    contours,h = cv2.findContours(img_thr,1,2)
+    opening = cv2.morphologyEx(img_bin_thre, cv2.MORPH_OPEN, kernel)
+    # showImg(opening)
+
+    contours,h = cv2.findContours(opening,1,2)
     j = 0
-    for cnt in contours:
+    for i in range(len(contours)):
+        cnt = contours[i]
         x, y, w, h = cv2.boundingRect(cnt)
         area = w*h
         if area > img_area*0.005 and area < img_area*0.9:
             # showImg(ROI)
             # saveImg(ROI, root, folder, str(id)+str(j))
+            # showImg(img2)
             if mode == 0:
-                ROI = img[y:y+h,x:x+w]
-                saveImg(ROI, root, folder, str(id)+str(j))
+                cimg = np.zeros_like(img_gs)
+                img2 = cv2.drawContours(cimg, contours, i, color=255, thickness=-1)
+                imgb = np.copy(img_gs)
+                # showImg(img2)
+                imgb[img2 != 255] = 255
+                ROI = imgb[y:y+h,x:x+w]
+                print("HEYY")
+                handleROI(ROI, folder+str(id)+str(j))
+                # saveImg(ROI, root, folder, str(id)+str(j))
             else:
                 # showImg(img[y:y+h,x:x+w])
                 img[y:y+h,x:x+w] = -img[y:y+h,x:x+w] + 255
@@ -124,68 +131,67 @@ def handleImage(img, root, folder, id, mode):
 # handleImage(img, "", "", "", 1)
 
 # %%
-def handleImage1(img, root, folder, id, mode):
-    # test=["FAPP_0", "DSEP_0", "DVUL_0"]
-    # img = cv2.imread('./tmp/'+test[]+'.png',cv2.IMREAD_UNCHANGED)
-    height, width = img.shape[0], img.shape[1]
-    img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret,img_thr = cv2.threshold(img_gs,254,255,cv2.THRESH_BINARY_INV)
-    # showImg(img_thr)
-    kernel_size = 20
-    kernel = np.ones((kernel_size,kernel_size),np.uint8)
-    img_thr = cv2.morphologyEx(img_thr, cv2.MORPH_OPEN, kernel)
-    # showImg(img_thr)
-    contours,h = cv2.findContours(img_thr,1,2)
-    # showImg(img_thr)
-    j=0
-    for cnt in contours:
-        for eps in np.arange(0.05, 0.20, 0.01):
-            approx = cv2.approxPolyDP(cnt,eps*cv2.arcLength(cnt,True),True)
-            if len(approx)==4:
-                x, y, w, h = cv2.boundingRect(cnt)
-                if w*h > height*width*0.005:
-                    ROI = img[y:y+h,x:x+w]
-                    
-                    if mode == 0:
-                        saveImg(ROI, root, folder, str(id)+str(j))
-                    else:
-                        img[y:y+h,x:x+w] = -img[y:y+h,x:x+w] + 255
-                    j+=1
-            # print("square")
-            # cv2.drawContours(img,[cnt],0,(np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255)),-1)
-    if mode == 2:
-        saveImg(img, root, None, folder+str(id))
-    if mode == 1:
-        showImg(img)
-    # cv2.imshow('img',img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    
-# test=["FAPP_0", "DSEP_0", "DVUL_0"]
-# img = cv2.imread('./tmp/CAEX_0.png',cv2.IMREAD_UNCHANGED)
-# handleImage1(img, "", "", "", 1)
+def handleROI(roi, id):
+    # roi = cv2.imread('./test.png',cv2.IMREAD_UNCHANGED)
+    # showImg(roi)
 
+    roi_height, roi_width = roi.shape[0], roi.shape[1]
+    ret,img_thr = cv2.threshold(roi,250,255,cv2.THRESH_BINARY_INV)
+    # showImg(img_thr)
+
+    edges = cv2.Canny(img_thr,30,50)
+    # showImg(edges)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(2,5))
+    closing = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+    # showImg(closing)
+    # closing=edges
+    nlines = 0
+    lines = cv2.HoughLinesP(closing, 1, math.pi/2, int(roi_height/4), minLineLength=roi_height*0.7, maxLineGap=roi_height/2)
+    if lines is not None:
+        for line in lines[:,0,:]:
+            x = line[0]
+            pad = 10
+            if line[0]==line[2] and x<(roi_width/2+pad) and x>(roi_width/2-pad):
+                nlines +=1
+                # pt1 = (line[0],line[1])
+                # pt2 = (line[2],line[3])
+                # cv2.line(roi, pt1, pt2, (0,0,255), 3)
+    if nlines>0 or roi_width>1.2*roi_height:
+        saveImg(roi, "tmp1", "bad", id)
+    else:
+        saveImg(roi, "tmp1", "good", id)
+
+    # cv2.imshow('image',roi)
+    # k = cv2.waitKey(0)
+    # print("DEBUG: waitKey returned:", chr(k))
+    # cv2.destroyAllWindows()
 # %%
-img = cv2.imread('./tmp/AOVA_0.png',cv2.IMREAD_UNCHANGED)
-# img = cv2.imread('./tmp/AAMB_0.png',cv2.IMREAD_UNCHANGED)
+# ret,img_max = cv2.threshold(img_gs,254,255,cv2.THRESH_BINARY_INV)
+
+# img = cv2.imread('./tmp/AOVA_0.png',cv2.IMREAD_UNCHANGED)
+img = cv2.imread('./tmp/AUBR_0.png',cv2.IMREAD_UNCHANGED)
 height, width = img.shape[0], img.shape[1]
 img_area = height*width
 img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-# clipping equals
-ret,img_clip = cv2.threshold(255-img_gs,230,255,cv2.THRESH_TOZERO_INV)
-img_clip = img_clip
-showImg(img_clip)
-# erosion
+
+# FIRST THRESOLD:
+ret,img_bin_thre = cv2.threshold(img_gs,252,255,cv2.THRESH_BINARY_INV)
+showImg(img_bin_thre)
+
+# OPENING
 kernel_size = 2
 kernel = np.ones((kernel_size,kernel_size),np.uint8)
-img_opened = cv2.erode(img_clip,kernel,iterations = 2)
-img_opened = 255-img_opened
-showImg(img_opened)
-# thresolding
-ret,img_thr = cv2.threshold(img_opened,235,255,cv2.THRESH_BINARY_INV)
-showImg(img_thr)
+opening = cv2.morphologyEx(img_bin_thre, cv2.MORPH_OPEN, kernel)
+showImg(opening)
 
-# %%
-
+# Contours
+contours,h = cv2.findContours(opening,1,2)
+for cnt in contours:
+    x, y, w, h = cv2.boundingRect(cnt)
+    if w*h > height*width*0.005:
+        ROI = img[y:y+h,x:x+w]
+        # handleROI(ROI)
+        showImg(ROI)
 
 # %%
