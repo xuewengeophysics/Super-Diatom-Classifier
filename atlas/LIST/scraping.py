@@ -79,15 +79,23 @@ for i, name in enumerate(key_list):
 
 # %%
 def handleImage(img, root, folder, id, mode):
-# img = cv2.imread('./tmp/AAMB_0.png',cv2.IMREAD_UNCHANGED)
+    # img = cv2.imread('./tmp/AAMB_0.png',cv2.IMREAD_UNCHANGED)
     height, width = img.shape[0], img.shape[1]
     img_area = height*width
     img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret,img_thr = cv2.threshold(img_gs,240,255,cv2.THRESH_BINARY_INV)
-    #OPENING
-    kernel_size = 5
+    # clipping equals
+    ret,img_clip = cv2.threshold(255-img_gs,230,255,cv2.THRESH_TOZERO_INV)
+    img_clip = img_clip
+    # showImg(img_clip)
+    # erosion
+    kernel_size = 2
     kernel = np.ones((kernel_size,kernel_size),np.uint8)
-    img_thr = cv2.morphologyEx(img_thr, cv2.MORPH_OPEN, kernel)
+    img_opened = cv2.erode(img_clip,kernel,iterations = 2)
+    img_opened = 255-img_opened
+    # showImg(img_opened)
+    # thresolding
+    ret,img_thr = cv2.threshold(img_opened,240,255,cv2.THRESH_BINARY_INV)
+    # showImg(img_thr)
     # showImg(img_thr)
     #CONNECTED COMPONENTS
     contours,h = cv2.findContours(img_thr,1,2)
@@ -156,5 +164,28 @@ def handleImage1(img, root, folder, id, mode):
 # test=["FAPP_0", "DSEP_0", "DVUL_0"]
 # img = cv2.imread('./tmp/CAEX_0.png',cv2.IMREAD_UNCHANGED)
 # handleImage1(img, "", "", "", 1)
+
+# %%
+img = cv2.imread('./tmp/AOVA_0.png',cv2.IMREAD_UNCHANGED)
+# img = cv2.imread('./tmp/AAMB_0.png',cv2.IMREAD_UNCHANGED)
+height, width = img.shape[0], img.shape[1]
+img_area = height*width
+img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# clipping equals
+ret,img_clip = cv2.threshold(255-img_gs,230,255,cv2.THRESH_TOZERO_INV)
+img_clip = img_clip
+showImg(img_clip)
+# erosion
+kernel_size = 2
+kernel = np.ones((kernel_size,kernel_size),np.uint8)
+img_opened = cv2.erode(img_clip,kernel,iterations = 2)
+img_opened = 255-img_opened
+showImg(img_opened)
+# thresolding
+ret,img_thr = cv2.threshold(img_opened,235,255,cv2.THRESH_BINARY_INV)
+showImg(img_thr)
+
+# %%
+
 
 # %%
