@@ -33,7 +33,7 @@ def saveImg(img, root, folder, id):
         if not os.path.exists(path_to_folder):
             os.makedirs(path_to_folder)
     full_path = path_to_folder+"/"+str(id)+".png"
-    print(path_to_folder,full_path)
+    # print(path_to_folder,full_path)
     cv2.imwrite(full_path,img)
 
 # %%
@@ -55,15 +55,20 @@ def handlePDF(doc):
                 pix = fitz.Pixmap(doc, xref)
                 if pix.n >=5:        # CMYK: convert to RGB first
                     pix = fitz.Pixmap(fitz.csRGB, pix)
-                img = pix2np(pix)
-                if img.shape[0]>10 and img.shape[1]>10:
-                    area = img.shape[0]*img.shape[1]
-                    if img.shape[2]!=1:
-                        img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                    ret,img_thr = cv2.threshold(img_gs,254,255,cv2.THRESH_BINARY)
-                    n = len(np.where(img_thr==255)[0])
+                ROI = pix2np(pix)
+                ROI_w, ROI_h = ROI.shape[0], ROI.shape[1]
+                if ROI_w>10 and ROI_h>10:
+                    #CHECKING IF IMAGE CONTAINS TO MUCH WHITE
+                    area = ROI_w*ROI_h
+                    if ROI.shape[2]!=1:
+                        ROI_gray = cv2.cvtColor(ROI, cv2.COLOR_BGR2GRAY)
+                    else:
+                        ROI_gray = ROI
+                    ret,ROI_thr = cv2.threshold(ROI_gray,254,255,cv2.THRESH_BINARY)
+                    n = len(np.where(ROI_thr==255)[0])
+                    # IF NOT, SAVE IMAGE
                     if n<area*0.2:
-                        saveImg(img_gs, "tmp", taxon, i)
+                        saveImg(ROI_gray, "tmp", taxon, i)
                         i+=1
 
 
@@ -74,3 +79,7 @@ pdfs = [f for f in listdir(root_path) if isfile(join(root_path, f))]
 for atlas_path in pdfs:
     doc = fitz.open(root_path+atlas_path)
     handlePDF(doc)
+print("OVER")
+
+
+# %%
