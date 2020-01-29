@@ -11,6 +11,11 @@ import os
 from os import listdir
 from os.path import isfile, join
 
+n_img_id = 0
+atlas_name = "RA"
+def init():
+    n_img_id = 0
+
 def pix2np(pix):
     im = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.h, pix.w, pix.n)
     if im.shape[2] == 3:
@@ -26,15 +31,22 @@ def showImg(img, scale=1):
     cv2.destroyAllWindows()
 
 def saveImg(img, root, folder, id):
-    if folder==None:
-        path_to_folder = "./"+root
-    else:
-        path_to_folder = "./"+root+"/"+folder
-        if not os.path.exists(path_to_folder):
-            os.makedirs(path_to_folder)
-    full_path = path_to_folder+"/"+str(id)+".png"
+    global n_img_id
+    path_to_folder = "./"+root
+    if not os.path.exists(path_to_folder):
+        os.makedirs(path_to_folder)
+    # if folder==None:
+    #     path_to_folder = "./"+root
+    # else:
+    #     path_to_folder = "./"+root+"/"+folder
+    #     if not os.path.exists(path_to_folder):
+    #         os.makedirs(path_to_folder)
+    img_id = '{:04d}'.format(n_img_id)
+    full_path = path_to_folder+"/"+atlas_name+"_"+folder+"_"+img_id+".png"
+    print(full_path)
     # print(path_to_folder,full_path)
     cv2.imwrite(full_path,img)
+    n_img_id = n_img_id + 1
 
 # %%
 def handlePDF(doc):
@@ -73,13 +85,14 @@ def handlePDF(doc):
 
 
 # %%
+init()
 root_path = "./data/"
-# pdf_path = "./data/atlas_dreal_rhone_alpes_2013_volume1.pdf"
 pdfs = [f for f in listdir(root_path) if isfile(join(root_path, f))]
 for atlas_path in pdfs:
     doc = fitz.open(root_path+atlas_path)
     handlePDF(doc)
 print("OVER")
+
 
 
 # %%
