@@ -78,14 +78,19 @@ cv2.copyTo(global_patch, global_patch_mask, art_img)
 showImg(art_img)
 showImg(global_patch_mask)
 
+# %%
+final_img = global_patch.copy()
+showImg(final_img)
+# Constructing kd tree with known values
+known = np.argwhere(global_patch_mask!=0)
+kdt = KDTree(known, leaf_size=30, metric='euclidean')
+# Finding neirest neighbors of unknownn values
+unknown = np.argwhere(global_patch_mask==0)
+nn = kdt.query(unknown, k=5, return_distance=False)
+# Filling
+for i in range(len(unknown)):
+    final_img[unknown[i]] = 100
+    # final_img[unknown[i]] = np.mean(global_patch[unknown[nn[i]]]).astype(np.uint8)
+showImg(final_img)
 
 # %%
-for i in np.argwhere(global_patch_mask==0):
-    x, y = i[0], i[1]
-print("done")
-
-# %%
-non_zero = np.argwhere(global_patch_mask!=0)
-zero = np.argwhere(global_patch_mask==0)
-kdt = KDTree(non_zero, leaf_size=30, metric='euclidean')
-nn = kdt.query(zero, k=5, return_distance=False)
