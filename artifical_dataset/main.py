@@ -8,6 +8,7 @@ from os import listdir
 from os.path import isfile, join
 DATASET_PATH = "./data/ra"
 
+random.seed(19)
 %run util.py
 
 # %% LOADING n RANDOM images
@@ -36,29 +37,50 @@ for img in tmp_images:
     # showImg(img)
 
 # %%
-random.seed(19)
 size_px = 1000
 art_img = (np.ones((size_px, size_px))*mean_brightness).astype(np.uint8)
+global_patch = np.zeros_like(art_img)
+global_patch_mask = np.zeros_like(art_img)
 for img in tmp_images:
+    mask = np.ones_like(img)*255
+    # ROTATING
     angle = random.randint(0,360)
     rotated = imutils.rotate_bound(img, angle)
-    px, py = int(rotated.shape[0]/2), int(rotated.shape[1]/2)
-    x, y = random.randint(0,size_px-1), random.randint(0,size_px-1) 
-    # xmin, xmax = (x-px, 0)[x-px<0], (x+px, size_px-1)[x+px>size_px-1]
-    # ymin, ymax = (y-py, 0)[y-py<0], (y+py, size_px-1)[y+py>size_px-1]
-    xmin, xmax, ymin, ymax = x-px, x+px, y-py, y+py
-    dxmin, dxmax = (0, -xmin)[xmin<0], (0, size_px-1-xmax)[xmax>size_px-1]
-    dymin, dymax = (0, -ymin)[ymin<0], (0, size_px-1-ymax)[ymax>size_px-1]
-
-    print("Center point: ", x, y)
-    print("Patch size: ", px, py)
-    print("Initial: ", xmin, xmax, ymin, ymax)
-    print("Deltas: ", dxmin, dxmax, dymin, dymax)
-    art_img[xmin+dxmin:xmax+dxmax, ymin+dymin:ymax+dymax] = rotated[dxmin:2*px+dxmax, ]
+    rotated_mask = imutils.rotate_bound(mask, angle)
+    #PLACING THE IMAGE WITHOUT OVERLAPPING
+    overlap_test = 1
+    while overlap_test != 0:
+        # TRANSLATING
+        px, py = int(rotated.shape[0]/2), int(rotated.shape[1]/2)
+        x, y = random.randint(0,size_px-1), random.randint(0,size_px-1) 
+        xmin, xmax, ymin, ymax = x-px, x+px, y-py, y+py
+        dxmin, dxmax = (0, -xmin)[xmin<0], (0, size_px-1-xmax)[xmax>size_px-1]
+        dymin, dymax = (0, -ymin)[ymin<0], (0, size_px-1-ymax)[ymax>size_px-1]
+        # PLACING ON TEMPORARY PATCH/MASL
+        patch = np.zeros_like(art_img)
+        patch_mask = np.zeros_like(art_img)
+        patch[xmin+dxmin:xmax+dxmax, ymin+dymin:ymax+dymax] = rotated[dxmin:2*px+dxmax, dymin:2*py+dymax]
+        patch_mask[xmin+dxmin:xmax+dxmax, ymin+dymin:ymax+dymax] = rotated_mask[dxmin:2*px+dxmax, dymin:2*py+dymax]
+        # Testing if there is overlapping by comparing to global mask
+        overlap_test = len(np.where(np.logical_and(patch_mask, global_patch_mask)==True)[0]) 
+    # (erosion to get rid of black edges)
+    kernel_size = 3
+    kernel = np.ones((kernel_size,kernel_size),np.uint8)
+    patch_mask = cv2.erode(patch_mask,kernel,iterations = 1)
+    # filling global patches
+    cv2.copyTo(patch, patch_mask, global_patch)
+    cv2.copyTo(patch_mask, patch_mask, global_patch_mask)
+#CREATING FINAL IMAGE
+cv2.copyTo(global_patch, global_patch_mask, art_img)
 showImg(art_img)
+showImg(global_patch_mask)
 
 
 # %%
+showImg(global_patch)
+filled = cv2.inpaint(global_patch,255-global_patch_mask,3,cv2.INPAINT_NS)
+showImg(filled)
+
 
 # %%
 ""
