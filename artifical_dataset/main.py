@@ -8,6 +8,8 @@ from os import listdir
 from os.path import isfile, join
 DATASET_PATH = "./data/ra"
 
+from sklearn.neighbors import KDTree
+
 random.seed(19)
 %run util.py
 
@@ -62,7 +64,8 @@ for img in tmp_images:
         patch[xmin+dxmin:xmax+dxmax, ymin+dymin:ymax+dymax] = rotated[dxmin:2*px+dxmax, dymin:2*py+dymax]
         patch_mask[xmin+dxmin:xmax+dxmax, ymin+dymin:ymax+dymax] = rotated_mask[dxmin:2*px+dxmax, dymin:2*py+dymax]
         # Testing if there is overlapping by comparing to global mask
-        overlap_test = len(np.where(np.logical_and(patch_mask, global_patch_mask)==True)[0]) 
+        print(np.nonzero(np.logical_and(patch_mask, global_patch_mask)))
+        overlap_test = len(np.nonzero(np.logical_and(patch_mask, global_patch_mask))[0]) 
     # (erosion to get rid of black edges)
     kernel_size = 3
     kernel = np.ones((kernel_size,kernel_size),np.uint8)
@@ -77,10 +80,12 @@ showImg(global_patch_mask)
 
 
 # %%
-showImg(global_patch)
-filled = cv2.inpaint(global_patch,255-global_patch_mask,3,cv2.INPAINT_NS)
-showImg(filled)
-
+for i in np.argwhere(global_patch_mask==0):
+    x, y = i[0], i[1]
+print("done")
 
 # %%
-""
+non_zero = np.argwhere(global_patch_mask!=0)
+zero = np.argwhere(global_patch_mask==0)
+kdt = KDTree(non_zero, leaf_size=30, metric='euclidean')
+nn = kdt.query(zero, k=5, return_distance=False)
