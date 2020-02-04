@@ -36,12 +36,27 @@ for img in tmp_images:
     # showImg(img)
 
 # %%
+random.seed(19)
 size_px = 1000
-art_img = np.zeros((size_px, size_px))
+art_img = (np.ones((size_px, size_px))*mean_brightness).astype(np.uint8)
 for img in tmp_images:
     angle = random.randint(0,360)
     rotated = imutils.rotate_bound(img, angle)
-    showImg(rotated)
+    px, py = int(rotated.shape[0]/2), int(rotated.shape[1]/2)
+    x, y = random.randint(0,size_px-1), random.randint(0,size_px-1) 
+    # xmin, xmax = (x-px, 0)[x-px<0], (x+px, size_px-1)[x+px>size_px-1]
+    # ymin, ymax = (y-py, 0)[y-py<0], (y+py, size_px-1)[y+py>size_px-1]
+    xmin, xmax, ymin, ymax = x-px, x+px, y-py, y+py
+    dxmin, dxmax = (0, -xmin)[xmin<0], (0, size_px-1-xmax)[xmax>size_px-1]
+    dymin, dymax = (0, -ymin)[ymin<0], (0, size_px-1-ymax)[ymax>size_px-1]
+
+    print("Center point: ", x, y)
+    print("Patch size: ", px, py)
+    print("Initial: ", xmin, xmax, ymin, ymax)
+    print("Deltas: ", dxmin, dxmax, dymin, dymax)
+    art_img[xmin+dxmin:xmax+dxmax, ymin+dymin:ymax+dymax] = rotated[dxmin:2*px+dxmax, ]
+showImg(art_img)
+
 
 # %%
 
