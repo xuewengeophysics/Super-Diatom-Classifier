@@ -89,8 +89,7 @@ unknown = np.argwhere(global_patch_mask==0)
 nn = kdt.query(unknown, k=5, return_distance=False)
 # Filling
 for i in range(len(unknown)):
-    final_img[unknown[i]] = 100
-    # final_img[unknown[i]] = np.mean(global_patch[unknown[nn[i]]]).astype(np.uint8)
+    final_img[unknown[i][0], unknown[i][1]] = np.mean(global_patch[unknown[nn[i]][0], unknown[nn[i]][1]]).astype(np.uint8)
 showImg(final_img)
 
 # %%
