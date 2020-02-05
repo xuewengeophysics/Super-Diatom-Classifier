@@ -78,7 +78,7 @@ cv2.copyTo(global_patch, global_patch_mask, art_img)
 showImg(art_img)
 showImg(global_patch_mask)
 
-# %%
+# %% TEST 01 - SIMPLE KNN
 # Constructing kd tree with known values
 known = np.argwhere(global_patch_mask!=0)
 kdt = KDTree(known, leaf_size=30, metric='euclidean')
@@ -98,5 +98,60 @@ for i in range(len(unknown)):
     # final_img[x_u, y_u] = np.mean(global_patch[known[nn[i]][:,0], known[nn[i]][:,1]]).astype(np.uint8)
     final_img[x_u, y_u] = np.average(avg_values, weights=nn_weights[i]).astype(np.uint8)
 showImg(final_img)
+cv2.imwrite( "./yey.png", final_img)
+
+# %% TEST 02 - COMPLEX KNN
+final_img = global_patch.copy()
+retval, labels = cv2.connectedComponents(global_patch_mask)
+kdts = []
+for i in range(1,retval):
+    cc_indexes = np.argwhere(labels==i)
+    tmp = KDTree(cc_indexes, leaf_size=30, metric='euclidean')
+    kdts.append(tmp)
+
+# %% TEST 03 - INFLUENCE MAP
+sigma = 30^2
+final_img = global_patch.copy()
+showImg(final_img)
+acc, accw = np.zeros_like(final_img).astype(np.float64), np.zeros_like(final_img).astype(np.float64)
+known = np.argwhere(global_patch_mask!=0)
+unknown = np.argwhere(global_patch_mask==0)
+xMap=np.ones(size_px,1)*[1:w]
+yMap=[1:h]'*ones(1,w)
+i = 0
+for kp in known:
+    xkp, ykp = kp[0], kp[1]
+    print(i, len(known))
+    i += 1
+    for up in unknown:
+        xup, yup = up[0], up[1]
+        d2 = np.linalg.norm(up-kp)
+        w = max(np.exp(-0.5*d2/sigma),1e-10)
+        acc[xup, yup] += float(final_img[xkp, ykp])*w
+        accw[xup, yup] += w
+acc = np.divide(acc, accw)
 
 # %%
+sigma = 30^2
+final_img = global_patch.copy()
+showImg(final_img)
+acc, accw = np.zeros_like(final_img).astype(np.float64), np.zeros_like(final_img).astype(np.float64)
+known = np.argwhere(global_patch_mask!=0)
+unknown = np.argwhere(global_patch_mask==0)
+# Getting indices
+indices = np.indices((size_px,size_px))
+xMap = indices[1]
+yMap = indices[0]
+# Looping
+i = 0
+for kp in known:
+    xkp, ykp = kp[0], kp[1]
+    print(i, len(known))
+    i += 1
+    for up in unknown:
+        xup, yup = up[0], up[1]
+        d2 = np.linalg.norm(up-kp)
+        w = max(np.exp(-0.5*d2/sigma),1e-10)
+        acc[xup, yup] += float(final_img[xkp, ykp])*w
+        accw[xup, yup] += w
+acc = np.divide(acc, accw)
