@@ -1,6 +1,6 @@
 # %%
 import cv2
-import imutils
+import imutils #pip install imutils
 import numpy as np
 import random
 
@@ -76,8 +76,7 @@ for img in tmp_images:
 #CREATING FINAL IMAGE
 cv2.copyTo(global_patch, global_patch_mask, art_img)
 showImg(art_img)
-showImg(global_patch)
-showImg(global_patch_mask)
+showImg(np.hstack([global_patch, global_patch_mask]))
 
 # %% TEST 01 - SIMPLE KNN
 # Constructing kd tree with known values
@@ -173,15 +172,6 @@ showImg(final_img)
 showImg(acc_img)
 
 # %%
-conts, h = cv2.findContours(global_patch_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-cv2.drawContours(final_img , cont, -1, (0, 255, 0), 3 )
-showImg(final_img)
-
-# %%
-for contour in cont:
-    print(contour)
-
-# %%
 kernel_size = 5
 kernel = np.ones((kernel_size,kernel_size),np.uint8)
 showImg(global_patch_mask)
@@ -195,6 +185,3 @@ for kp in known:
     test[xkp, ykp] = global_patch[xkp, ykp]
     # test[xkp, ykp] = 255
 showImg(test)
-
-
-# %%
