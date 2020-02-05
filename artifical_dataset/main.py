@@ -138,15 +138,17 @@ final_img = global_patch.copy()
 showImg(final_img)
 acc, accw = np.zeros_like(final_img).astype(np.float64), np.zeros_like(final_img).astype(np.float64)
 known = np.argwhere(global_patch_mask!=0)
-unknown = np.argwhere(global_patch_mask==0)
+# Finding contours
+conts, h = cv2.findContours(global_patch_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 # Getting indices
 indices = np.indices((size_px,size_px))
 xMap = indices[1]
 yMap = indices[0]
 # Looping
 i = 0
+known = np.concatenate(conts)
 for kp in known:
-    xkp, ykp = kp[0], kp[1]
+    xkp, ykp = kp[0][0], kp[0][1]
     val = final_img[xkp, ykp]
     # print(xkp, ykp, val)
     print(i, len(known))
@@ -160,7 +162,7 @@ for kp in known:
     acc += w*val
     accw += w
     # print(w*val, w)
-    if i==100:
+    if i==1000:
         break
 acc = np.divide(acc, accw)
 
@@ -169,5 +171,14 @@ acc_img = acc.astype(np.uint8)
 final_img[global_patch_mask==0]=acc_img[global_patch_mask==0]
 showImg(final_img)
 showImg(acc_img)
+
+# %%
+conts, h = cv2.findContours(global_patch_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+cv2.drawContours(final_img , cont, -1, (0, 255, 0), 3 )
+showImg(final_img)
+
+# %%
+for contour in cont:
+    print(contour)
 
 # %%
