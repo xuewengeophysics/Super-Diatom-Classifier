@@ -160,6 +160,14 @@ for kp in known:
     acc += w*val
     accw += w
     # print(w*val, w)
+    if i==100:
+        break
 acc = np.divide(acc, accw)
+
+# %%
+acc_img = acc.astype(np.uint8)
+final_img[global_patch_mask==0]=acc_img[global_patch_mask==0]
+showImg(final_img)
+showImg(acc_img)
 
 # %%
