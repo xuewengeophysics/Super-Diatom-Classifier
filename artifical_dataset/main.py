@@ -147,12 +147,19 @@ yMap = indices[0]
 i = 0
 for kp in known:
     xkp, ykp = kp[0], kp[1]
+    val = final_img[xkp, ykp]
+    # print(xkp, ykp, val)
     print(i, len(known))
     i += 1
-    for up in unknown:
-        xup, yup = up[0], up[1]
-        d2 = np.linalg.norm(up-kp)
-        w = max(np.exp(-0.5*d2/sigma),1e-10)
-        acc[xup, yup] += float(final_img[xkp, ykp])*w
-        accw[xup, yup] += w
+    # FILLING
+    d2 = (xMap - xkp)*(xMap - xkp) + (yMap - ykp)*(yMap - ykp)
+    # xup, yup = up[0], up[1]
+    # d2 = np.linalg.norm(up-kp)
+    w = np.exp(-0.5*d2/sigma)
+    w[w<1e-10] = 1e-10
+    acc += w*val
+    accw += w
+    # print(w*val, w)
 acc = np.divide(acc, accw)
+
+# %%
