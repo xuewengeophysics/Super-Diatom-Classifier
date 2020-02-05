@@ -2,16 +2,23 @@
 import cv2
 import imutils #pip install imutils
 import numpy as np
+# import cupy as np
 import random
 
 from os import listdir
 from os.path import isfile, join
 DATASET_PATH = "./data/ra"
 
-from sklearn.neighbors import KDTree
+# from sklearn.neighbors import KDTree
 
 random.seed(19)
-%run util.py
+def showImg(img, scale=1):
+    cv2.namedWindow('image',cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('image', scale*img.shape[1], scale*img.shape[0])
+    cv2.imshow('image',img)
+    k = cv2.waitKey(0)
+    print("DEBUG: waitKey returned:", chr(k))
+    cv2.destroyAllWindows()
 
 # %% LOADING n RANDOM images
 images = [f for f in listdir(DATASET_PATH) if isfile(join(DATASET_PATH, f))]
@@ -32,11 +39,11 @@ for i in range(n):
 mean_brightness /= len(tmp_images)
 
 # %% NORMALIZING BRIGHTNESS
-for img in tmp_images:
-    # showImg(img)
-    img += (mean_brightness-np.mean(img)).astype(np.uint8)
-    img[img>254] = 254
-    # showImg(img)
+# for img in tmp_images:
+#     # showImg(img)
+#     img += (mean_brightness-np.mean(img)).astype(np.uint8)
+#     img[img>254] = 254
+#     # showImg(img)
 
 # %%
 size_px = 1000
@@ -78,110 +85,56 @@ cv2.copyTo(global_patch, global_patch_mask, art_img)
 showImg(art_img)
 showImg(np.hstack([global_patch, global_patch_mask]))
 
-# %% TEST 01 - SIMPLE KNN
-# Constructing kd tree with known values
-known = np.argwhere(global_patch_mask!=0)
-kdt = KDTree(known, leaf_size=30, metric='euclidean')
-# Finding neirest neighbors of unknownn values
-unknown = np.argwhere(global_patch_mask==0)
-nn_query = kdt.query(unknown, k=10, return_distance=True)
-nn = nn_query[1]
-nn_weights = nn_query[0]
-# Filling
-
-# %%
-final_img = global_patch.copy()
-showImg(final_img)
-for i in range(len(unknown)):
-    x_u, y_u = unknown[i][0], unknown[i][1] 
-    avg_values = global_patch[known[nn[i]][:,0], known[nn[i]][:,1]]
-    # final_img[x_u, y_u] = np.mean(global_patch[known[nn[i]][:,0], known[nn[i]][:,1]]).astype(np.uint8)
-    final_img[x_u, y_u] = np.average(avg_values, weights=nn_weights[i]).astype(np.uint8)
-showImg(final_img)
-cv2.imwrite( "./yey.png", final_img)
-
-# %% TEST 02 - COMPLEX KNN
-final_img = global_patch.copy()
-retval, labels = cv2.connectedComponents(global_patch_mask)
-kdts = []
-for i in range(1,retval):
-    cc_indexes = np.argwhere(labels==i)
-    tmp = KDTree(cc_indexes, leaf_size=30, metric='euclidean')
-    kdts.append(tmp)
-
 # %% TEST 03 - INFLUENCE MAP
-sigma = 30^2
+sigma = 10^3
 final_img = global_patch.copy()
 showImg(final_img)
 acc, accw = np.zeros_like(final_img).astype(np.float64), np.zeros_like(final_img).astype(np.float64)
-known = np.argwhere(global_patch_mask!=0)
-unknown = np.argwhere(global_patch_mask==0)
-xMap=np.ones(size_px,1)*[1:w]
-yMap=[1:h]'*ones(1,w)
-i = 0
-for kp in known:
-    xkp, ykp = kp[0], kp[1]
-    print(i, len(known))
-    i += 1
-    for up in unknown:
-        xup, yup = up[0], up[1]
-        d2 = np.linalg.norm(up-kp)
-        w = max(np.exp(-0.5*d2/sigma),1e-10)
-        acc[xup, yup] += float(final_img[xkp, ykp])*w
-        accw[xup, yup] += w
-acc = np.divide(acc, accw)
-
-# %%
-sigma = 30^2
-final_img = global_patch.copy()
-showImg(final_img)
-acc, accw = np.zeros_like(final_img).astype(np.float64), np.zeros_like(final_img).astype(np.float64)
-known = np.argwhere(global_patch_mask!=0)
 # Finding contours
 conts, h = cv2.findContours(global_patch_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 # Getting indices
-indices = np.indices((size_px,size_px))
-xMap = indices[1]
-yMap = indices[0]
+indices = np.indices(final_img.shape)
+xMap = indices[0]
+yMap = indices[1]
 # Looping
 i = 0
 known = np.concatenate(conts)
 for kp in known:
     xkp, ykp = kp[0][1], kp[0][0]
     val = final_img[xkp, ykp]
-    # print(xkp, ykp, val)
     print(i, len(known))
     i += 1
     # FILLING
     d2 = (xMap - xkp)*(xMap - xkp) + (yMap - ykp)*(yMap - ykp)
-    # xup, yup = up[0], up[1]
-    # d2 = np.linalg.norm(up-kp)
     w = np.exp(-0.5*d2/sigma)
     w[w<1e-10] = 1e-10
     acc += w*val
     accw += w
     # print(w*val, w)
-    if i==1500:
+    if i==1000:
         break
 acc = np.divide(acc, accw)
 
 # %%
 acc_img = acc.astype(np.uint8)
+showImg(acc_img)
 final_img[global_patch_mask==0]=acc_img[global_patch_mask==0]
 showImg(final_img)
 showImg(acc_img)
 
+# # %%
+# kernel_size = 5
+# kernel = np.ones((kernel_size,kernel_size),np.uint8)
+# showImg(global_patch_mask)
+# mask_tmp = cv2.erode(global_patch_mask,kernel,iterations = 0)
+# showImg(mask_tmp)
+# conts, h = cv2.findContours(mask_tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+# known = np.concatenate(conts)
+# test=np.ones_like(global_patch)
+# for kp in known:
+#     xkp, ykp = kp[0][1], kp[0][0]
+#     test[xkp, ykp] = global_patch[xkp, ykp]
+#     # test[xkp, ykp] = 255
+# showImg(test)
+
 # %%
-kernel_size = 5
-kernel = np.ones((kernel_size,kernel_size),np.uint8)
-showImg(global_patch_mask)
-mask_tmp = cv2.erode(global_patch_mask,kernel,iterations = 0)
-showImg(mask_tmp)
-conts, h = cv2.findContours(mask_tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-known = np.concatenate(conts)
-test=np.ones_like(global_patch)
-for kp in known:
-    xkp, ykp = kp[0][1], kp[0][0]
-    test[xkp, ykp] = global_patch[xkp, ykp]
-    # test[xkp, ykp] = 255
-showImg(test)
