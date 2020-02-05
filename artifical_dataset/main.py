@@ -148,7 +148,7 @@ yMap = indices[0]
 i = 0
 known = np.concatenate(conts)
 for kp in known:
-    xkp, ykp = kp[0][0], kp[0][1]
+    xkp, ykp = kp[0][1], kp[0][0]
     val = final_img[xkp, ykp]
     # print(xkp, ykp, val)
     print(i, len(known))
@@ -162,7 +162,7 @@ for kp in known:
     acc += w*val
     accw += w
     # print(w*val, w)
-    if i==1000:
+    if i==1500:
         break
 acc = np.divide(acc, accw)
 
@@ -180,5 +180,21 @@ showImg(final_img)
 # %%
 for contour in cont:
     print(contour)
+
+# %%
+kernel_size = 5
+kernel = np.ones((kernel_size,kernel_size),np.uint8)
+showImg(global_patch_mask)
+mask_tmp = cv2.erode(global_patch_mask,kernel,iterations = 0)
+showImg(mask_tmp)
+conts, h = cv2.findContours(mask_tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+known = np.concatenate(conts)
+test=np.ones_like(global_patch)
+for kp in known:
+    xkp, ykp = kp[0][1], kp[0][0]
+    test[xkp, ykp] = global_patch[xkp, ykp]
+    # test[xkp, ykp] = 255
+showImg(test)
+
 
 # %%
