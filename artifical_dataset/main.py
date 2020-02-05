@@ -76,6 +76,7 @@ for img in tmp_images:
 #CREATING FINAL IMAGE
 cv2.copyTo(global_patch, global_patch_mask, art_img)
 showImg(art_img)
+showImg(global_patch)
 showImg(global_patch_mask)
 
 # %% TEST 01 - SIMPLE KNN
