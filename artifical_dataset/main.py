@@ -86,12 +86,15 @@ showImg(art_img)
 showImg(np.hstack([global_patch, global_patch_mask]))
 
 # %% TEST 03 - INFLUENCE MAP
-sigma = 10^3
+sigma = 10^6
 final_img = global_patch.copy()
 showImg(final_img)
 acc, accw = np.zeros_like(final_img).astype(np.float64), np.zeros_like(final_img).astype(np.float64)
 # Finding contours
-conts, h = cv2.findContours(global_patch_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+kernel_size = 5
+kernel = np.ones((kernel_size,kernel_size),np.uint8)
+mask_tmp = cv2.erode(global_patch_mask,kernel,iterations = 1)
+conts, h = cv2.findContours(mask_tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 # Getting indices
 indices = np.indices(final_img.shape)
 xMap = indices[0]
@@ -100,13 +103,16 @@ yMap = indices[1]
 i = 0
 known = np.concatenate(conts)
 for kp in known:
+    # Counter
+    if i%100==0:
+        print(i, "/", len(known))
+    i += 1
+    # Init
     xkp, ykp = kp[0][1], kp[0][0]
     val = final_img[xkp, ykp]
-    print(i, len(known))
-    i += 1
     # FILLING
-    d2 = (xMap - xkp)*(xMap - xkp) + (yMap - ykp)*(yMap - ykp)
-    w = np.exp(-0.5*d2/sigma)
+    d2 = np.square(xMap - xkp) + np.square(yMap - ykp)
+    w = np.exp(-d2/sigma)
     w[w<1e-10] = 1e-10
     acc += w*val
     accw += w
@@ -117,24 +123,23 @@ acc = np.divide(acc, accw)
 
 # %%
 acc_img = acc.astype(np.uint8)
-showImg(acc_img)
 final_img[global_patch_mask==0]=acc_img[global_patch_mask==0]
-showImg(final_img)
 showImg(acc_img)
+showImg(final_img)
 
-# # %%
-# kernel_size = 5
-# kernel = np.ones((kernel_size,kernel_size),np.uint8)
-# showImg(global_patch_mask)
-# mask_tmp = cv2.erode(global_patch_mask,kernel,iterations = 0)
-# showImg(mask_tmp)
-# conts, h = cv2.findContours(mask_tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-# known = np.concatenate(conts)
-# test=np.ones_like(global_patch)
-# for kp in known:
-#     xkp, ykp = kp[0][1], kp[0][0]
-#     test[xkp, ykp] = global_patch[xkp, ykp]
-#     # test[xkp, ykp] = 255
-# showImg(test)
+# %%
+kernel_size = 5
+kernel = np.ones((kernel_size,kernel_size),np.uint8)
+showImg(global_patch_mask)
+mask_tmp = cv2.erode(global_patch_mask,kernel,iterations = 0)
+showImg(mask_tmp)
+conts, h = cv2.findContours(mask_tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+known = np.concatenate(conts)
+test=np.ones_like(global_patch)
+for kp in known:
+    xkp, ykp = kp[0][1], kp[0][0]
+    test[xkp, ykp] = global_patch[xkp, ykp]
+    # test[xkp, ykp] = 255
+showImg(test)
 
 # %%
