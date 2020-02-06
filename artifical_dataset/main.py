@@ -22,7 +22,7 @@ def showImg(img, scale=1):
 
 # %% LOADING n RANDOM images
 images = [f for f in listdir(DATASET_PATH) if isfile(join(DATASET_PATH, f))]
-n = random.randint(7,10)
+n = random.randint(9,12)
 tmp_images = []
 mean_brightness = 0
 for i in range(n):
@@ -86,14 +86,14 @@ showImg(art_img)
 showImg(np.hstack([global_patch, global_patch_mask]))
 
 # %% TEST 03 - INFLUENCE MAP
-sigma = 10^6
+sigma = 10e3
 final_img = global_patch.copy()
 showImg(final_img)
 acc, accw = np.zeros_like(final_img).astype(np.float64), np.zeros_like(final_img).astype(np.float64)
 # Finding contours
 kernel_size = 5
 kernel = np.ones((kernel_size,kernel_size),np.uint8)
-mask_tmp = cv2.erode(global_patch_mask,kernel,iterations = 1)
+mask_tmp = cv2.erode(global_patch_mask,kernel,iterations = 0)
 conts, h = cv2.findContours(mask_tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 # Getting indices
 indices = np.indices(final_img.shape)
@@ -117,8 +117,8 @@ for kp in known:
     acc += w*val
     accw += w
     # print(w*val, w)
-    if i==1000:
-        break
+    # if i==1000:
+    #     break
 acc = np.divide(acc, accw)
 
 # %%
@@ -126,6 +126,8 @@ acc_img = acc.astype(np.uint8)
 final_img[global_patch_mask==0]=acc_img[global_patch_mask==0]
 showImg(acc_img)
 showImg(final_img)
+# %%
+cv2.imwrite( "./yey.png", final_img)
 
 # %%
 kernel_size = 5
