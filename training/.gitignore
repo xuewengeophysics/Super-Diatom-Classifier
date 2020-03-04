@@ -1,4 +1,4 @@
-raw_dataset/
+tf_records/
 dataset/
 models/
 .ipynb_checkpoints/
