@@ -1,5 +1,6 @@
 data/
 .ipynb_checkpoints/
 tmp/
+generation/
 tmp0/
 tmp1/
