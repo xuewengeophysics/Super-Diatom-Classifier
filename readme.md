@@ -5,14 +5,14 @@ cd venv
 # Create virtual env tf2.1
 '''
 virtualenv -p python3.5 p3.5tf2.1
-. diatoms3.5/bin/activate
-python -m pip install ipython
-python -m pip install jupyterlab
-python -m pip install tensorflow==2.1.0
-python -m pip install tensorflow-gpu==2.1.0
-python -m pip install imutils
-python -m pip install opencv-python
-python -m pip install Cython contextlib2 pillow lxml matplotlib
+. diatoms3.5/bin/activate 
+python -m pip install ipython 
+python -m pip install jupyterlab 
+python -m pip install tensorflow==2.1.0 
+python -m pip install tensorflow-gpu==2.1.0 
+python -m pip install imutils 
+python -m pip install opencv-python 
+python -m pip install Cython contextlib2 pillow lxml matplotlib 
 '''
 
 # Create virtual env tf1.15
