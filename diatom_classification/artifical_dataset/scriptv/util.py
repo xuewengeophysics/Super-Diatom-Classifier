@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os
 from os.path import isfile, join
 import errno
+import pickle
 
 def showImg(img, scale=1):
     plt.figure(figsize=(5,5))
