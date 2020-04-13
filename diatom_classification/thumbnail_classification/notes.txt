@@ -1,0 +1,2 @@
+1 step training
+rmsprop -> final accuracy : 
