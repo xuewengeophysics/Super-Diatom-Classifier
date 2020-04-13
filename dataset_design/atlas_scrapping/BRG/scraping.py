@@ -11,35 +11,16 @@ import os
 from os import listdir
 from os.path import isfile, join
 
-def pix2np(pix):
-    im = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.h, pix.w, pix.n)
-    if im.shape[2] == 3:
-        im = np.ascontiguousarray(im[..., [2, 1, 0]])  # rgb to bgr
-    return im
+import sys
+sys.path.insert(1, '..')
+from utils import *
 
-def showImg(img, scale=1):
-    cv2.namedWindow('image',cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('image', scale*img.shape[1], scale*img.shape[0])
-    cv2.imshow('image',img)
-    k = cv2.waitKey(0)
-    print("DEBUG: waitKey returned:", chr(k))
-    cv2.destroyAllWindows()
-
-def saveImg(img, root, folder, id):
-    if folder==None:
-        path_to_folder = "./"+root
-    else:
-        path_to_folder = "./"+root+"/"+folder
-        if not os.path.exists(path_to_folder):
-            os.makedirs(path_to_folder)
-    full_path = path_to_folder+"/"+str(id)+".png"
-    print(path_to_folder,full_path)
-    cv2.imwrite(full_path,img)
+selected_taxons = get_selected_taxons("../../../selected_taxons.txt")
 
 # %%
 root_path = "/media/pierrefg/01D341A80E60C350/Users/pierr/Google Drive/School/Georgia Tech/Super Diatomee Classifier/Atlas/PDFs/BRG (LIST)/"
 pdfs = [f for f in listdir(root_path) if isfile(join(root_path, f))]
-pdf_path = os.path.join(root_path, pdfs[3])
+pdf_path = os.path.join(root_path, pdfs[1])
 print("Opening: ", pdf_path)
 doc = fitz.open(pdf_path)
 
@@ -53,8 +34,29 @@ for i in range(39, len(doc)):
     match = p.search(text)
     if match:
         taxon = ''.join(x for x in match.group().strip() if x.isalpha())
-        taxon_pages.setdefault(taxon, []).append(i)
-        print(taxon, i+1)
+        if taxon in selected_taxons:
+            taxon_pages.setdefault(taxon, []).append(i)
+            print(taxon, i+1)
+
+# %%
+n_id = 0
+for taxon in taxon_pages:
+    pages_n = taxon_pages[taxon]
+    # first page is never usefull
+    for page_n in pages_n[1:]:
+        print("Page ", page_n)
+        for img in doc.getPageImageList(page_n):
+            xref = img[0]
+            pix = fitz.Pixmap(doc, xref)
+            if pix.n >=5:        # CMYK: convert to RGB first
+                pix = fitz.Pixmap(fitz.csRGB, pix)
+            fimg = pix2np(pix)
+            if fimg.shape[0]>10 and fimg.shape[1]>10:
+                if fimg.shape[2]!=1:
+                    fimg = cv2.cvtColor(fimg, cv2.COLOR_BGR2GRAY)
+                saveImg(fimg, "./tmp", taxon, n_id)
+                cv2.imwrite("./tmp/BRG_"+taxon+"_",fimg)
+                n_id+=1
         
     # if match and match.group().find("TOME")==-1:
     #     print("---------------------------------")
