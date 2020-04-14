@@ -11,30 +11,9 @@ import os
 from os import listdir
 from os.path import isfile, join
 
-def pix2np(pix):
-    im = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.h, pix.w, pix.n)
-    if im.shape[2] == 3:
-        im = np.ascontiguousarray(im[..., [2, 1, 0]])  # rgb to bgr
-    return im
-
-def showImg(img, scale=1):
-    cv2.namedWindow('image',cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('image', scale*img.shape[1], scale*img.shape[0])
-    cv2.imshow('image',img)
-    k = cv2.waitKey(0)
-    print("DEBUG: waitKey returned:", chr(k))
-    cv2.destroyAllWindows()
-
-def saveImg(img, root, folder, id):
-    if folder==None:
-        path_to_folder = "./"+root
-    else:
-        path_to_folder = "./"+root+"/"+folder
-        if not os.path.exists(path_to_folder):
-            os.makedirs(path_to_folder)
-    full_path = path_to_folder+"/"+str(id)+".png"
-    print(path_to_folder,full_path)
-    cv2.imwrite(full_path,img)
+import sys
+sys.path.insert(1, '..')
+from utils import *
 
 # %%
 def handlePDF(doc):
