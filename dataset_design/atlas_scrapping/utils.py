@@ -41,3 +41,11 @@ def get_selected_taxons(file_path):
 
 def get_file_name(atlas, taxon, id):
     return atlas+"_"+taxon+"_"+id+".png"
+
+def check_dirs(filename):
+    if not os.path.exists(os.path.dirname(filename)):
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as exc: # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
