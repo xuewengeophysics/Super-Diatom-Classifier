@@ -12,7 +12,7 @@ from os import listdir
 from os.path import isfile, join
 
 import sys
-sys.path.insert(1, '..')
+sys.path.insert(1, '../..')
 from utils import *
 
 selected_taxons = get_selected_taxons("../../../selected_taxons.txt")
