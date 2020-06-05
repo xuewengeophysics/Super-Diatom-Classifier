@@ -1,0 +1,6 @@
+atlas - 157 taxa - 20 min images per taxon - unbalanced - accuracy 0.9729train/0.8996val at epoch 50
+atlas - 157 taxa - 20 min images per taxon - balanced - accuracy 0.9865train/0.9263val at epoch 50
+aqualitas - 80 taxa - 0 min images per taxon - balanced - accuracy 0.9762train/0.9363val at epoch 50
+ADIAC38 - 38 taxa - 0 min images per taxon - unbalanced - accuracy 0.9986train/0.9844val at epoch 50 - rotation between 20
+ADIAC48 - 48 taxa - 0 min images per taxon - unbalanced - accuracy 0.9977train/0.9896val at epoch 50 - rotation between 20
+ADIAC58 - 48 taxa - 0 min images per taxon - unbalanced - accuracy 0.9977train/0.9896val at epoch 50 - rotation between 20
