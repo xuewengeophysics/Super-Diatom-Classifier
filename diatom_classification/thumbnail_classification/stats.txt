@@ -4,3 +4,14 @@ aqualitas - 80 taxa - 0 min images per taxon - balanced - accuracy 0.9762train/0
 ADIAC38 - 38 taxa - 0 min images per taxon - unbalanced - accuracy 0.9986train/0.9844val at epoch 50 - rotation between 20
 ADIAC48 - 48 taxa - 0 min images per taxon - unbalanced - accuracy 0.9977train/0.9896val at epoch 50 - rotation between 20
 ADIAC58 - 48 taxa - 0 min images per taxon - unbalanced - accuracy 0.9977train/0.9896val at epoch 50 - rotation between 20
+
+CROSS VALIDATION
+ADIAC38
+SGD - 20 degree rotation - 0.9712851345539093 +- 0.020318212858933253
+Adam - 20 degree rotation - 0.9665519177913666 +- 0.021882291201832157
+SGD - 90 degree rotation - 0.9653614461421967+-0.017358602134064344
+0.9676993668079377+-0.022841271539881913
+ADIAC48
+SGD-20 degree rotation-0.9735099792480468+-0.013179855322139493
+ADIAC55
+

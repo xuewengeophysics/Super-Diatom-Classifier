@@ -1,0 +1,183 @@
+INFO - First log
+INFO - Initial dataset length: 0- n classes: 0
+INFO - First log
+INFO - Initial dataset length: 1019- n classes: 48
+INFO - Fold: 1/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.06873343884944916, 0.967391312122345]
+INFO - [test_loss, test_accuracy]: [0.10938789695501328, 0.9803921580314636]
+INFO - Fold: 2/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.1327882558107376, 0.967391312122345]
+INFO - [test_loss, test_accuracy]: [0.11561093479394913, 0.9509803652763367]
+INFO - Fold: 3/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.0912725105881691, 0.97826087474823]
+INFO - [test_loss, test_accuracy]: [0.051044903695583344, 0.9803921580314636]
+INFO - Fold: 4/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.10035008192062378, 0.97826087474823]
+INFO - [test_loss, test_accuracy]: [0.04995300620794296, 0.9901960492134094]
+INFO - Fold: 5/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.05523337051272392, 0.989130437374115]
+INFO - [test_loss, test_accuracy]: [0.2140042781829834, 0.970588207244873]
+INFO - Fold: 6/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.12181354314088821, 0.989130437374115]
+INFO - [test_loss, test_accuracy]: [0.14016519486904144, 0.970588207244873]
+INFO - Fold: 7/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.05432524532079697, 0.989130437374115]
+INFO - [test_loss, test_accuracy]: [0.14331641793251038, 0.970588207244873]
+INFO - Fold: 8/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.06101435795426369, 0.95652174949646]
+INFO - [test_loss, test_accuracy]: [0.03283940628170967, 0.9901960492134094]
+INFO - Fold: 9/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.07457879930734634, 0.989130437374115]
+INFO - [test_loss, test_accuracy]: [0.13821128010749817, 0.9509803652763367]
+INFO - Fold: 10/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.014692389406263828, 1.0]
+INFO - [test_loss, test_accuracy]: [0.09538166224956512, 0.9801980257034302]
+INFO - Mean accuracy: 0.9735099792480468+-0.013179855322139493
+INFO - Computed in 13470.57435631752s
+INFO - First log
+INFO - First log
+INFO - Initial dataset length: 1099- n classes: 55
+INFO - Fold: 1/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.05969209969043732, 0.9797979593276978]
+INFO - [test_loss, test_accuracy]: [0.0778660699725151, 0.9818181991577148]
+INFO - Fold: 2/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.15810252726078033, 0.9595959782600403]
+INFO - [test_loss, test_accuracy]: [0.12350747734308243, 0.9727272987365723]
+INFO - Fold: 3/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.2525818347930908, 0.9595959782600403]
+INFO - [test_loss, test_accuracy]: [0.03191540017724037, 0.9909090995788574]
+INFO - Fold: 4/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.18672432005405426, 0.9494949579238892]
+INFO - [test_loss, test_accuracy]: [0.06890910863876343, 0.9818181991577148]
+INFO - Fold: 5/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.19163750112056732, 0.9696969985961914]
+INFO - [test_loss, test_accuracy]: [0.36058536171913147, 0.9090909361839294]
+INFO - Fold: 6/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.251002699136734, 0.9595959782600403]
+INFO - [test_loss, test_accuracy]: [0.11683322489261627, 0.9727272987365723]
+INFO - Fold: 7/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.12264316529035568, 0.9595959782600403]
+INFO - [test_loss, test_accuracy]: [0.1051776111125946, 0.9727272987365723]
+INFO - Fold: 8/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.020297566428780556, 1.0]
+INFO - [test_loss, test_accuracy]: [0.12720675766468048, 0.9727272987365723]
+INFO - Fold: 9/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.13678137958049774, 0.9696969985961914]
+INFO - [test_loss, test_accuracy]: [0.14077655971050262, 0.9454545378684998]
+INFO - Fold: 10/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.08594812452793121, 0.9797979593276978]
+INFO - [test_loss, test_accuracy]: [0.07443678379058838, 0.9724770784378052]
+INFO - Mean accuracy: 0.967247724533081+-0.022336208771372778
+INFO - Computed in 14530.373616933823s
+INFO - First log
+INFO - Initial dataset length: 8668- n classes: 80
+INFO - Fold: 1/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.3982178270816803, 0.8962867856025696]
+INFO - [test_loss, test_accuracy]: [0.5264586806297302, 0.8811995387077332]
+INFO - Fold: 2/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.20149873197078705, 0.9411011338233948]
+INFO - [test_loss, test_accuracy]: [0.20884248614311218, 0.9354094862937927]
+INFO - Fold: 3/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.3828735649585724, 0.9039692878723145]
+INFO - [test_loss, test_accuracy]: [0.4225465655326843, 0.8938869833946228]
+INFO - Fold: 4/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.4062950611114502, 0.8962867856025696]
+INFO - [test_loss, test_accuracy]: [0.3726133704185486, 0.9100345969200134]
+INFO - Fold: 5/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.3572750985622406, 0.9065300822257996]
+INFO - [test_loss, test_accuracy]: [0.32068032026290894, 0.911188006401062]
+INFO - Fold: 6/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.43478861451148987, 0.9116517305374146]
+INFO - [test_loss, test_accuracy]: [0.3720341622829437, 0.8985005617141724]
+INFO - Fold: 7/10
+INFO - Training new layers
+INFO - Training full model
+INFO - First log
+INFO - Initial dataset length: 9230- n classes: 157
+INFO - Fold: 1/10
+INFO - Training new layers
+INFO - Training full model
+INFO - Evaluating!
+INFO - [val_loss, val_accuracy]: [0.3709428012371063, 0.9049338102340698]
+INFO - [test_loss, test_accuracy]: [0.5268453359603882, 0.8905742168426514]
+INFO - Fold: 2/10
+INFO - Training new layers
+INFO - Training full model
