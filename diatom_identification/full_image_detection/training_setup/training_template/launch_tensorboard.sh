@@ -1,2 +1,1 @@
-tensorboard --logdir="./models/model/"
-
+tensorboard --logdir="$1training/"

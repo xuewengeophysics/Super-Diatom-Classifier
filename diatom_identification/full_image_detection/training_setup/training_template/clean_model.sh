@@ -1,1 +1,0 @@
-rm -v ./models/model/*
